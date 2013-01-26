@@ -8,19 +8,20 @@
 using namespace std;
 
 string solve(const string& a, const string& b);
-string toString(int result, const vector<int>& factors);
-string numberToString(int n);
 void getNumbers(const string& s, stack<int>& numbers);
-int getNumber(stack<int>& stk, const vector<int>& factors);
-void getFactors(vector<int>& factors, vector<int>& primes);
 void getPrimes(vector<int>& primes);
 bool isPrime(int n);
+void calculate(stack<int>& numbersA, stack<int>& numbersB, stack<int>& result, const vector<int>& primes);
+void align(stack<int>& numbersA, stack<int>& numbersB);
+void process(stack<int>& stk, int size);
+string toString(stack<int>& result);
+string numberToString(int number);
 
 int main()
 {
 	string a, b;
 	while (cin >> a >> b) {
-		if (a == "0" && b == "0") {
+		if (a == "0" || b == "0") {
 			break;
 		}
 		cout << solve(a, b) << endl;
@@ -34,44 +35,79 @@ string solve(const string& a, const string& b)
 	getNumbers(a, numbersA);
 	stack<int> numbersB;
 	getNumbers(b, numbersB);
-
 	vector<int> primes;
 	getPrimes(primes);
-	vector<int> factors;
-	getFactors(factors, primes);
 
-	int numberA = getNumber(numbersA, factors);
-	int numberB = getNumber(numbersB, factors);
-	int result = numberA + numberB;
-	return toString(result, primes);
+	stack<int> result;
+	calculate(numbersA, numbersB, result, primes);
+	return toString(result);
 }
 
-string toString(int n, const vector<int>& primes)
+void calculate(stack<int>& numbersA, stack<int>& numbersB, stack<int>& result, const vector<int>& primes)
 {
-	stack<int> numbers;
+	align(numbersA, numbersB);
 	int index = 0;
-	while (n != 0) {
-		int remain = n % primes[index];
-		numbers.push(remain);
-		n /= primes[index];
+	int carry = 0;
+	while (!numbersA.empty() && !numbersB.empty()) {
+		int a = numbersA.top();
+		int b = numbersB.top();
+		result.push((a + b + carry) % primes[index]);
+		carry = (a + b + carry) / primes[index];
+
+		numbersA.pop();
+		numbersB.pop();
 		++index;
 	}
-
-	string result;
-	result += numberToString(numbers.top());
-	numbers.pop();
-	while (!numbers.empty()) {
-		result += ",";
-		result += numberToString(numbers.top());
-		numbers.pop();
+	if (carry == 1) {
+		result.push(1);
 	}
-    return result;
 }
 
-string numberToString(int n)
+void align(stack<int>& numbersA, stack<int>& numbersB)
+{
+	if (numbersA.size() < numbersB.size()) {
+		int size = numbersB.size() - numbersA.size();
+		process(numbersA, size);
+	}
+	else {
+		int size = numbersA.size() - numbersB.size();
+		process(numbersB, size);
+	}
+}
+
+void process(stack<int>& stk, int size)
+{
+	stack<int> temp;
+	while (!stk.empty()) {
+		temp.push(stk.top());
+		stk.pop();
+	}
+	for (int i = 0; i < size; ++i) {
+		stk.push(0);
+	}
+	while (!temp.empty()) {
+		stk.push(temp.top());
+		temp.pop();
+	}
+}
+
+string toString(stack<int>& result)
+{
+	string s;
+	s += numberToString(result.top());
+	result.pop();
+	while (!result.empty()) {
+		s += ",";
+		s += numberToString(result.top());
+		result.pop();
+	}
+	return s;
+}
+
+string numberToString(int number)
 {
 	stringstream ss;
-	ss << n;
+	ss << number;
 	return ss.str();
 }
 
@@ -89,31 +125,9 @@ void getNumbers(const string& s, stack<int>& numbers)
 	}
 }
 
-int getNumber(stack<int>& stk, const vector<int>& factors)
-{
-	int result = 0;
-	int index = 0;
-	while (!stk.empty()) {
-		result += stk.top() * factors[index];
-		++index;
-		stk.pop();
-	}
-	return result;
-}
-
-void getFactors(vector<int>& factors, vector<int>& primes)
-{
-	int acc = 1;
-	factors.push_back(acc);
-	for (vector<int>::size_type i = 0; i != primes.size(); ++i) {
-		acc *= primes[i];
-		factors.push_back(acc);
-	}
-}
-
 void getPrimes(vector<int>& primes)
 {
-	for (int i = 2; i <= 23; ++i) {
+	for (int i = 2; i < 150; ++i) {
 		if (isPrime(i)) {
 			primes.push_back(i);
 		}
