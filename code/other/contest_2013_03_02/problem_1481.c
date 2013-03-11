@@ -1,15 +1,34 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define MAX_NODES 100
+#define MAX_NODES 10000
 
-/* use adjacent matrix to represent tree */
-int tree[MAX_NODES][MAX_NODES];
+struct Node {
+    int value;
+    struct Node* next;
+    struct Node* previous;
+};
+
+typedef struct Node Node;
+/* create list, return a pointer of this list's head */
+Node* createList();
+/* return the length of list */
+int length(Node* list);
+/* insert a value into list in specific position */
+int insert(Node* list, int position, int value);
+/* push value into list's back */
+int pushBackList(Node* list, int value);
+/* destroy specific list */
+void destroyList(Node* list);
+
+
+Node* tree[MAX_NODES];
 int tran[MAX_NODES];
 
 int tran_index(int tag, int* pn);
-int solve(int tree[MAX_NODES][MAX_NODES], int n);
-int dfs(int tree[MAX_NODES][MAX_NODES], int n, int node, int state[MAX_NODES]);
+int solve(Node* tree[MAX_NODES], int n);
+int dfs(Node* tree[MAX_NODES], int n, int node, int state[MAX_NODES]);
 
 int main()
 {
@@ -32,10 +51,15 @@ int main()
 
 			start = tran_index(start, &index);
 			end = tran_index(end, &index);
-			tree[start][end] = 1;
+			pushBackList(tree[start], end);
 		} while (scanf("%d %d", &start, &end) != EOF);
 
 		int result = solve(tree, index);
+		int i;
+		for (i = 0; i < index; ++i) {
+			destroyList(tree[i]);
+		}
+
 		++counter;
 		if (result) {
 			printf("Case %d is a tree.\n", counter);
@@ -58,11 +82,12 @@ int tran_index(int tag, int* pn)
 	}
 
 	tran[*pn] = tag;
+	tree[*pn] = createList();
 	++*pn;
 	return n;
 }
 
-int solve(int tree[MAX_NODES][MAX_NODES], int n)
+int solve(Node* tree[MAX_NODES], int n)
 {
     if (n == 0) {
         return 1;
@@ -71,13 +96,13 @@ int solve(int tree[MAX_NODES][MAX_NODES], int n)
 	int state[MAX_NODES];
 	memset(state, 1, sizeof(state));
 
-    int i, j;
+    int i;
 	for (i = 0; i < n; ++i) {
-		for (j = 0; j < n; ++j) {
-			if (tree[i][j] == 1) {
-				state[j] = 0;
-			}
-		}
+	    Node* indicator = tree[i]->next;
+        while (indicator != tree[i]) {
+            state[indicator->value] = 0;
+            indicator = indicator->next;
+        }
 	}
 
 	int root = -1;
@@ -98,7 +123,7 @@ int solve(int tree[MAX_NODES][MAX_NODES], int n)
 
 	int flag = 1;
 	for (i = 0; i < n; ++i) {
-		if (state[i] == 1) {
+		if (state[i] != 0) {
 			flag = 0;
 			break;
 		}
@@ -106,20 +131,91 @@ int solve(int tree[MAX_NODES][MAX_NODES], int n)
 	return flag;
 }
 
-int dfs(int tree[MAX_NODES][MAX_NODES], int n, int node, int state[MAX_NODES])
+int dfs(Node* tree[MAX_NODES], int n, int node, int state[MAX_NODES])
 {
 	state[node] = 0;
-	int i;
-	for (i = 0; i < n; ++i) {
-	    if (tree[node][i] == 0) {
-            continue;
-        }
-		if (state[i] == 0) {
-			return 0;
-		}
-        if (dfs(tree, n, i, state) == 0) {
+	Node* indicator = tree[node]->next;
+    while (indicator != tree[node]) {
+    	if (state[indicator->value] == 0) {
+    		return 0;
+    	}
+    	if (dfs(tree, n, indicator->value, state) == 0) {
         	return 0;
         }
-	}
+        indicator = indicator->next;
+    }
 	return 1;
+}
+
+/* create list, return a pointer of this list's head */
+Node* createList()
+{
+    Node* result = NULL;
+    while (result == NULL) {
+        result = (Node *)malloc(sizeof(Node));
+    }
+
+    result->next = result;
+    result->previous = result;
+    return result;
+}
+
+/* return the length of list */
+int length(Node* list)
+{
+    int result = 0;
+    Node* indicator = list->next;
+    while (indicator != list) {
+        ++result;
+        indicator = indicator->next;
+    }
+    return result;
+}
+
+/* insert a value into list in specific position */
+int insert(Node* list, int position, int value)
+{
+    if (position > length(list)) {
+        printf("no element exist in %dth position\n", position);
+        return -1;
+    }
+
+    Node* indicator = list;
+    while (position > 0) {
+        indicator = indicator->next;
+        --position;
+    }
+
+    Node* target = NULL;
+    while (target == NULL) {
+        target = (Node *)malloc(sizeof(Node));
+    }
+
+    /* set up inserted node's value */
+    target->previous = indicator;
+    target->next = indicator->next;
+    target->value = value;
+
+    /* upgrade node's pointer */
+    indicator->next->previous = target;
+    indicator->next = target;
+    return 1;
+}
+
+/* push value into list's back */
+int pushBackList(Node* list, int value)
+{
+    return insert(list, length(list), value);
+}
+
+/* destroy specific list */
+void destroyList(Node* list)
+{
+    Node* indicator = list->next;
+    while (indicator != list) {
+        Node* temp = indicator;
+        indicator = indicator->next;
+        free(temp);
+    }
+    free(list);
 }
