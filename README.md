@@ -1,4 +1,4 @@
-OnlineJudge
-===========
+code practice
+-------------
 
-This is a set of problem solutions for jobdu online judge, which is aim at helping students to prepare for ACM contest in graduate school.
+Aiming to practice my code ability, just for fun.
