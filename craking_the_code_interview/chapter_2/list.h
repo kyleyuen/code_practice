@@ -9,7 +9,6 @@ using std::string;
 
 class Node {
 public:
-
 	Node(int v = 0): value(v), next(NULL) {}
 
 	int get_value() { return value; }
@@ -17,8 +16,8 @@ public:
 
 	void set_next_pointer(Node* p) { next = p; }
 	Node* get_next_pointer() { return next; }
-private:
 
+private:
 	int value;
 	Node* next;
 };
@@ -27,7 +26,6 @@ private:
 
 class SingleLinkedList {
 public:
-
 	SingleLinkedList(): head(NULL), size(0) {}
 
 	Node* get_head() { return head; }
@@ -43,8 +41,8 @@ public:
 	void delete_node_in_the_middle(Node* target);
 
 	string to_string();
-private:
 
+private:
 	void set_head(Node* p) { this->head = p; }
 	void increase_size() { ++size; }
 	void decrease_size() { --size; }
