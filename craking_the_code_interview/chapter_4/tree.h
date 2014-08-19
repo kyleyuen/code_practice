@@ -5,10 +5,12 @@
 #include <sstream>
 #include <cstdlib>
 #include <algorithm>
+#include <vector>
 
 using std::string;
 using std::stringstream;
 using std::max;
+using std::vector;
 
 class Node {
 public:
@@ -35,7 +37,7 @@ public:
 	BinarySearchTree(): root(NULL) {}
 
 	Node* get_root() { return root; }
-	void insert_node(int value);
+	Node* insert_node(int value);
 
 	string pre_order_traversal();
 	string in_order_traversal();
@@ -43,6 +45,7 @@ public:
 
 	bool is_balanced();
 	int check_height(Node* current);
+	void create_minimal_height_tree(const vector<int>& array);
 
 private:
 	void set_root(Node* target) { root = target; }
@@ -50,6 +53,8 @@ private:
 	void pre_order(stringstream& ss, Node* current);
 	void in_order(stringstream& ss, Node* current);
 	void post_order(stringstream& ss, Node* current);
+
+	Node* create_tree_from_vector(const vector<int>& array, int start, int end);
 
 	Node* root;
 };

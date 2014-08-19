@@ -4,13 +4,13 @@
 
 using std::cout;
 
-void BinarySearchTree::insert_node(int value)
+Node* BinarySearchTree::insert_node(int value)
 {
 	Node* current = this->get_root();
 	if (current == NULL) {
 		Node* new_node = new Node(value);
 		this->set_root(new_node);
-		return;
+		return NULL;
 	}
 
 	while (current != NULL) {
@@ -18,7 +18,7 @@ void BinarySearchTree::insert_node(int value)
 			if (current->get_left_pointer() == NULL) {
 				Node* new_node = new Node(value);
 				current->set_left_pointer(new_node);
-				return;
+				return new_node;
 			}
 			current = current->get_left_pointer();
 		}
@@ -26,7 +26,7 @@ void BinarySearchTree::insert_node(int value)
 			if (current->get_right_pointer() == NULL) {
 				Node* new_node = new Node(value);
 				current->set_right_pointer(new_node);
-				return;	
+				return new_node;
 			}
 			current = current->get_right_pointer();
 		}
@@ -121,4 +121,31 @@ int BinarySearchTree::check_height(Node* current)
 	else {
 		return max(left_height, right_height) + 1;
 	}
+}
+
+
+void BinarySearchTree::create_minimal_height_tree(const vector<int>& array)
+{
+	this->create_tree_from_vector(array, 0, array.size()-1);
+}
+
+
+Node* BinarySearchTree::create_tree_from_vector(const vector<int>& array, int start, int end)
+{
+	if (start > end) {
+		return NULL;
+	}
+
+	int middle = (start+end) / 2;
+	Node* new_node = new Node(array[middle]);
+	if (this->get_root() == NULL) {
+		this->set_root(new_node);
+	}
+
+	Node* left_leaf = this->create_tree_from_vector(array, start, middle-1);
+	Node* right_leaf = this->create_tree_from_vector(array, middle+1, end);
+	new_node->set_left_pointer(left_leaf);
+	new_node->set_right_pointer(right_leaf);
+
+	return new_node;
 }
