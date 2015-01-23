@@ -4,88 +4,51 @@ class Solution:
     # Do not return any value.
     def solveSudoku(self, board):
         state = [[True for i in range(9)] for j in range(9)]
-        processed_board = self.translate_board_from_string_to_integet(board, state)
-
-        finished = False
-        self.dfs(processed_board, 0, 0, state, finished)
-
-        return self.translate_board_from_integer_to_string(processed_board)
-
-
-    def translate_board_from_string_to_integet(self, board, state):
-        processed_board = [[0 for i in range(9)] for j in range(9)]
-        for i in range(len(board)):
-            for j in range(len(board[i])):
+        for i in range(9):
+            for j in range(9):
                 if board[i][j] != ".":
-                    processed_board[i][j] = int(board[i][j])
                     state[i][j] = False
-        return processed_board
+
+        (x, y) = self.next_blank(state, 0, -1)
+        self.dfs(board, x, y, state)
+        print board
 
 
-    def translate_board_from_integer_to_string(self, processed_board):
-        board = []
-        for i in range(len(processed_board)):
-            row = ""
-            for j in range(len(processed_board[i])):
-                if processed_board[i][j] == 0:
-                    row += "."
-                else:
-                    row += str(processed_board[i][j])
-            board.append(row)
-        return board
-
-
-    def dfs(self, processed_board, row, column, state, finished):
-        if finished:
-            return
+    def dfs(self, board, row, column, state):
+        if row == -1 and column == -1:
+            return True
 
         (x, y) = self.next_blank(state, row, column)
-        if x == -1 and y == -1:
-            finished = True
-            return
-
-        for i in range(1, 10):
-            processed_board[x][y] = i
-            if self.check_row(processed_board, row) \
-            and self.check_column(processed_board, column) \
-            and self.check_square(processed_board, int(row/3), int(column/3)):
-                self.dfs(processed_board, x, y, state, finished)
-        state[x][y] = False
+        digits = [str(i) for i in range(1, 10)]
+        for d in digits:
+            if self.check_row(board, row, d) and self.check_column(board, column, d) \
+                and self.check_square(board, int(row/3), int(column/3), d):
+                board[row][column] = d
+                if self.dfs(board, x, y, state):
+                    return True
+                board[row][column] = "."
+        return False
 
 
-    def check_row(self, processed_board, row):
-        state = [False for i in range(9+1)]
+    def check_row(self, board, row, value):
         for j in range(9):
-            if processed_board[row][j] == 0:
-                continue
-
-            if state[processed_board[row][j]]:
+            if board[row][j] == value:
                 return False
-            state[processed_board[row][j]] = True
         return True
 
 
-    def check_column(self, processed_board, column):
-        state = [False for i in range(9+1)]
+    def check_column(self, board, column, value):
         for i in range(9):
-            if processed_board[i][column] == 0:
-                continue
-
-            if state[processed_board[i][column]]:
+            if board[i][column] == value:
                 return False
-            state[processed_board[i][column]] = True
         return True
 
 
-    def check_square(self, processed_board, row, column):
-        state = [False for i in range(9+1)]
+    def check_square(self, board, row, column, value):
         for i in range(3):
             for j in range(3):
-                if processed_board[row*3+i][column*3+j] == 0:
-                    continue
-
-                if state[processed_board[row*3+i][column*3+j]]:
-                    state[processed_board[row*3+i][column*3+j]] = True
+                if board[row*3+i][column*3+j] == value:
+                    return False
         return True
 
 
@@ -102,5 +65,22 @@ class Solution:
         
 
 s = Solution()
-board = ["53..7....","6..195...",".98....6.","8...6...3","4..8.3..1","7...2...6",".6....28.","...419..5","....8..79"]
-print s.solveSudoku(board)
+board = [
+    ["5","3",".",".","7",".",".",".","."],
+    ["6",".",".","1","9","5",".",".","."],
+    [".","9","8",".",".",".",".","6","."],
+    ["8",".",".",".","6",".",".",".","3"],
+    ["4",".",".","8",".","3",".",".","1"],
+    ["7",".",".",".","2",".",".",".","6"],
+    [".",".",".",".",".",".",".",".","."],
+    [".",".",".",".",".",".",".",".","."],
+    [".",".",".",".",".",".",".",".","."],
+]
+board = [".....7..9",".4..812..","...9...1.","..53...72","293....5.",".....53..","8...23...","7...5..4.","531.7...."]
+processed_board = []
+for i in range(len(board)):
+    temp = []
+    for c in board[i]:
+        temp.append(c)
+    processed_board.append(temp)
+s.solveSudoku(processed_board)

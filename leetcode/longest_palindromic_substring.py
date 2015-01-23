@@ -1,17 +1,27 @@
 class Solution:
     # @return a string
     def longestPalindrome(self, s):
-        
-        for i in range(len(s)):
-        	if (current*2 <= i) and (s[i] == s[i-current*2]):
-        		current += 1
-        	else:
-        		current = 1
-        	if result < current:
-        		result = current
+        length = len(s)
+        dp = [[False for i in range(length)] for j in range(length)]
+        for i in range(length):
+            dp[i][i] = True
+        for i in range(1, length):
+            if s[i-1] == s[i]:
+                dp[i-1][i] = True
 
-        return result*2-1
+        result = 0
+        for l in range(2, length):
+            for i in range(length-l):
+                j = i + l
+                if (s[i]==s[j]) and dp[i+1][j-1]:
+                    dp[i][j] = True
+                    result = l
+
+        for i in range(length-result):
+            if dp[i][i+result]:
+                return s[i:i+result+1]
         
 
 s = Solution()
-print s.longestPalindrome("bbbbbb")
+string = "aaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjjkkkkkkkkkkllllllllllmmmmmmmmmmnnnnnnnnnnooooooooooppppppppppqqqqqqqqqqrrrrrrrrrrssssssssssttttttttttuuuuuuuuuuvvvvvvvvvvwwwwwwwwwwxxxxxxxxxxyyyyyyyyyyzzzzzzzzzzyyyyyyyyyyxxxxxxxxxxwwwwwwwwwwvvvvvvvvvvuuuuuuuuuuttttttttttssssssssssrrrrrrrrrrqqqqqqqqqqppppppppppoooooooooonnnnnnnnnnmmmmmmmmmmllllllllllkkkkkkkkkkjjjjjjjjjjiiiiiiiiiihhhhhhhhhhggggggggggffffffffffeeeeeeeeeeddddddddddccccccccccbbbbbbbbbbaaaaaaaabbbbbbbbbbccccccccccddddddddddeeeeeeeeeeffffffffffgggggggggghhhhhhhhhhiiiiiiiiiijjjjjjjjjjkkkkkkkkkkllllllllllmmmmmmmmmmnnnnnnnnnnooooooooooppppppppppqqqqqqqqqqrrrrrrrrrrssssssssssttttttttttuuuuuuuuuuvvvvvvvvvvwwwwwwwwwwxxxxxxxxxxyyyyyyyyyyzzzzzzzzzzyyyyyyyyyyxxxxxxxxxxwwwwwwwwwwvvvvvvvvvvuuuuuuuuuuttttttttttssssssssssrrrrrrrrrrqqqqqqqqqqppppppppppoooooooooonnnnnnnnnnmmmmmmmmmmllllllllllkkkkkkkkkkjjjjjjjjjjiiiiiiiiiihhhhhhhhhhggggggggggffffffffffeeeeeeeeeeddddddddddccccccccccbbbbbbbbbbaaaa"
+print s.longestPalindrome(string)

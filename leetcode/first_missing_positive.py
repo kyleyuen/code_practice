@@ -2,24 +2,21 @@ class Solution:
     # @param A, a list of integers
     # @return an integer
     def firstMissingPositive(self, A):
-        for i in range(len(A)):
-        	x = i
-        	while x >= 0 and A[x] != x:
-        		print A
-        		raw_input()
-        		
-        		y = A[x]
-        		A[x] = A[y]
-        		A[y] = y
-        		x = A[x]
+        n = len(A)
+        for i in range(n):
+            target = A[i]
+            while (target>0) and (target<=n) and (A[target-1]!=target):
+                new_target = A[target-1]
+                A[target-1] = target
+                target = new_target
         
-        print A
-        for i in range(1, len(A)):
-        	if A[i] != i:
-        		return i
-        return len(A)
-
+        for i in range(n):
+            if A[i] != i+1:
+                return i+1
+        return n+1
+        
 
 s = Solution()
-array = [2, 3, 1, -1]
+array = [3, 4, 1, -1]
+#array = [1, 2, 0]
 print s.firstMissingPositive(array)
